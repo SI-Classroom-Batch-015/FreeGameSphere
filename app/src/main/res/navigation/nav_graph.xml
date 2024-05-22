@@ -6,5 +6,20 @@
     <fragment
         android:id="@+id/gamesFragment2"
         android:name="com.Moritz.Schleimer.FreeGameSphere.ui.GamesFragment"
-        android:label="GamesFragment" />
+        android:label="GamesFragment" >
+        <action
+            android:id="@+id/action_gamesFragment2_to_detailGamesFragment"
+            app:destination="@id/detailGamesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailGamesFragment"
+        android:name="com.Moritz.Schleimer.FreeGameSphere.ui.DetailGamesFragment"
+        android:label="DetailGamesFragment" >
+        <action
+            android:id="@+id/action_detailGamesFragment_to_gamesFragment2"
+            app:destination="@id/gamesFragment2" />
+        <argument
+            android:name="id"
+            app:argType="integer" />
+    </fragment>
 </navigation>
