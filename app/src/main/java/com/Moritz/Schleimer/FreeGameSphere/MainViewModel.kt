@@ -12,11 +12,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = Repository(GameApi)
 
     val games = repo.games
+    val game = repo.game
 
 
     fun loadGames(){
         viewModelScope.launch {
             repo.getGames()
+        }
+    }
+
+    fun loadGameById(id:Int){
+        viewModelScope.launch {
+            repo.getGameById(id)
         }
     }
 }
