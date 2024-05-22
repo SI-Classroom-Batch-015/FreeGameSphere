@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "299361971138",
+    "project_id": "freegamesphere",
+    "storage_bucket": "freegamesphere.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299361971138:android:c20bda6cc0e3091aba845b",
+        "android_client_info": {
+          "package_name": "com.Moritz.Schleimer.FreeGameSphere"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUkQWFqDqq2OCSYsvhVip2OUZY0HfrLhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
