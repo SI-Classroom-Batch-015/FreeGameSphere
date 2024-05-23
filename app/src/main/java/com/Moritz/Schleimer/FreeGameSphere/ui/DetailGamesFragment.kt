@@ -47,7 +47,7 @@ class DetailGamesFragment: Fragment() {
             binding.tvPublisherAPI.text = game.publisher
             binding.tvDeveloperAPI.text = game.developer
             binding.tvReleaseDateAPI.text = game.release_date
-            binding.tvShortDescriptionAPI.text = game.short_description
+            binding.tvShortDescriptionAPI.text = game.description
             binding.btnHomepage.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.game_url))
                 startActivity(intent)
