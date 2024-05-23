@@ -9,7 +9,7 @@ data class Game(
     val publisher: String?,
     val developer: String?,
     val release_date: String?,
-    val short_description: String?,
+    val description: String?,
     val game_url: String?,
     val isLiked: Boolean = false
 )
