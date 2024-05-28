@@ -12,6 +12,7 @@ import com.Moritz.Schleimer.FreeGameSphere.MainViewModel
 import com.Moritz.Schleimer.FreeGameSphere.R
 import com.Moritz.Schleimer.FreeGameSphere.databinding.FragmentRegisterBinding
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class RegisterFragment: Fragment() {
 
@@ -23,7 +24,7 @@ class RegisterFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRegisterBinding.inflate(layoutInflater)
+        binding = FragmentRegisterBinding.inflate(inflater,container,false)
         return binding.root
     }
 
@@ -34,9 +35,20 @@ class RegisterFragment: Fragment() {
         var toolBarTitle= toolbar.findViewById<TextView>(R.id.toolbar_title)
         toolBarTitle.text = ""
 
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNav.visibility = View.GONE
+
         binding.btnRegister2.setOnClickListener {
-            val action = RegisterFragmentDirections.actionRegisterFragmentToLoginFragment()
-            findNavController().navigate(action)
+            val email= binding.emailEt.text.toString()
+            val passwort= binding.passwordEt.text.toString()
+            viewModel.attemptSignUp(email,passwort)
+
+        }
+        viewModel.user.observe(viewLifecycleOwner){
+            if (it!= null){
+                val action = RegisterFragmentDirections.actionRegisterFragmentToLoginFragment()
+                findNavController().navigate(action)
+            }
         }
     }
 }
