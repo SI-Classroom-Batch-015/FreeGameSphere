@@ -10,6 +10,9 @@
         <action
             android:id="@+id/action_gamesFragment2_to_detailGamesFragment"
             app:destination="@id/detailGamesFragment" />
+        <action
+            android:id="@+id/action_gamesFragment2_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailGamesFragment"
