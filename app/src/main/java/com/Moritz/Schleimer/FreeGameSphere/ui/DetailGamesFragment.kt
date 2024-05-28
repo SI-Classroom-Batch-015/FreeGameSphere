@@ -15,6 +15,7 @@ import com.Moritz.Schleimer.FreeGameSphere.MainViewModel
 import com.Moritz.Schleimer.FreeGameSphere.R
 import com.Moritz.Schleimer.FreeGameSphere.databinding.FragmentDetailGamesBinding
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class DetailGamesFragment: Fragment() {
 
@@ -34,9 +35,13 @@ class DetailGamesFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val toolbar = requireActivity().findViewById<MaterialToolbar>(R.id.materialToolbar)
         var toolBarTitle= toolbar.findViewById<TextView>(R.id.toolbar_title)
         toolBarTitle.text = "Info über das Spiel"
+
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNav.visibility = View.VISIBLE
 
 
         viewModel.game.observe(viewLifecycleOwner){game->
