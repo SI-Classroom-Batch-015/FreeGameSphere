@@ -140,11 +140,11 @@
             android:id="@+id/text_short_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:text="Description:"
             android:textColor="@color/white"
-            android:text="Short Description:"
-            android:layout_marginBottom="8dp"/>
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvShortDescriptionAPI"
