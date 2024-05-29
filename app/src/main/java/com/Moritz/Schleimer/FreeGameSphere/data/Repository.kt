@@ -41,6 +41,20 @@ class Repository(
         }
     }
     suspend fun signInUser(email: String, password: String): Boolean {
-        return firebaseService.signInWithEmailAndPassword(email, password)
+        return try {
+            firebaseService.signInWithEmailAndPassword(email, password)
+        }catch (e:Exception){
+            Log.e(TAG,e.message.toString())
+            return false
+        }
+    }
+
+    suspend fun signUpUser(email: String,password: String):Boolean {
+        return try {
+            firebaseService.createUserWithEmailAndPassword(email, password)
+        }catch (e:Exception){
+            Log.e(TAG,e.message.toString())
+            return false
+        }
     }
 }
