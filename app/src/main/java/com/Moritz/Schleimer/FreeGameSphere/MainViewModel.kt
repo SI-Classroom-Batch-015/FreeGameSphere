@@ -53,18 +53,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         return true
     }
-
     fun signIn(email:String,passwort:String){
         if (!validateCredentials(email,passwort)) return
 
-        auth.signInWithEmailAndPassword(email,passwort).addOnCompleteListener {task->
+        auth.signInWithEmailAndPassword(email,passwort).addOnCompleteListener{task->
             if (task.isSuccessful){
                 _user.postValue(auth.currentUser)
             }else{
-                log("Login attempt failed",task.exception)
+                log("SignIn attempt failed")
             }
         }
-
     }
     fun attemptSignUp(email:String, passwort: String){
         if (!validateCredentials(email,passwort)) return
