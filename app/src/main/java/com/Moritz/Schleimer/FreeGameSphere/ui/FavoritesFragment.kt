@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.Moritz.Schleimer.FreeGameSphere.MainViewModel
 import com.Moritz.Schleimer.FreeGameSphere.R
 import com.Moritz.Schleimer.FreeGameSphere.adapter.GamesAdapter
@@ -18,7 +20,6 @@ import com.google.android.material.appbar.MaterialToolbar
 class FavoritesFragment: Fragment() {
 
     private lateinit var binding: FragmentFavoritesBinding
-    private lateinit var binding2: ItemGameBinding
     private val viewModel: MainViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -40,11 +41,10 @@ class FavoritesFragment: Fragment() {
 
 
         viewModel.favoriteGames.observe(viewLifecycleOwner){
-            binding.rvFavorites.adapter = GamesAdapter(it)
+            binding.rvFavorites.adapter = GamesAdapter(it){game->
+                val action = FavoritesFragmentDirections.actionFavoritesFragmentToDetailGamesFragment(game.id)
+                findNavController().navigate(action)
+            }
         }
-        binding2.cvGame.setOnClickListener {
-
-        }
-
     }
 }
