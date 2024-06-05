@@ -13,7 +13,8 @@ import com.Moritz.Schleimer.FreeGameSphere.databinding.ItemGameBinding
 import com.Moritz.Schleimer.FreeGameSphere.ui.GamesFragmentDirections
 
 class GamesAdapter(
-    private var dataset: List<Game>
+    private var dataset: List<Game>,
+    private var onClick: (Game) -> Unit
 ): RecyclerView.Adapter<GamesAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(val binding: ItemGameBinding) :
@@ -34,8 +35,7 @@ class GamesAdapter(
         holder.binding.tvGenre.text = game.genre
         holder.binding.tvPlattform.text = game.platform
         holder.binding.cvGame.setOnClickListener {
-            val action = GamesFragmentDirections.actionGamesFragment2ToDetailGamesFragment(game.id)
-            it.findNavController().navigate(action)
+            onClick(game)
         }
     }
     @SuppressLint("NotifyDataSetChanged")
