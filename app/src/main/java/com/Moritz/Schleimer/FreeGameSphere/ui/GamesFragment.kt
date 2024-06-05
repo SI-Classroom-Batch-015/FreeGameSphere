@@ -45,14 +45,5 @@ class GamesFragment: Fragment() {
         viewModel.games.observe(viewLifecycleOwner) {
             rvAdapter.submitListCall(it)
         }
-        binding.imageButton.setOnClickListener {
-            viewModel.logOut()
-        }
-        viewModel.user.observe(viewLifecycleOwner){fbUser->
-            if (fbUser == null){
-                val action= GamesFragmentDirections.actionGamesFragment2ToLoginFragment()
-                findNavController().navigate(action)
-            }
-        }
     }
 }
