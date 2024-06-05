@@ -46,6 +46,7 @@ dependencies {
     val retrofitVersion = "2.9.0"
     val roomVersion = "2.6.0"
 
+
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
     implementation("androidx.core:core-ktx:1.12.0")
@@ -57,6 +58,8 @@ dependencies {
 
     //Firebase/Firestore
     implementation ("com.google.firebase:firebase-auth-ktx:22.1.2")
+    implementation("com.google.firebase:firebase-bom:33.1.0")
+    implementation("com.google.firebase:firebase-firestore:25.0.0")
 
 
 
