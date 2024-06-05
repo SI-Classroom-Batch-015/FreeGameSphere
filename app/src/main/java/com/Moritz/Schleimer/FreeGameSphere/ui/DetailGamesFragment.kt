@@ -56,7 +56,10 @@ class DetailGamesFragment: Fragment() {
             binding.btnHomepage.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.game_url))
                 startActivity(intent)
-
+            }
+            binding.imageView.setOnClickListener{
+                binding.imageView.setImageResource(R.drawable.baseline_favorite_24)
+                viewModel.addToFavorite(game)
             }
 
         }
