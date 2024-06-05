@@ -153,4 +153,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun isFavorite(game:Game):Boolean{
+        return favoriteGames.value?.any { it.id == game.id } == true
+    }
 }
