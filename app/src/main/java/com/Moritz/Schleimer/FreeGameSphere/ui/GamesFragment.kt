@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.Moritz.Schleimer.FreeGameSphere.MainViewModel
 import com.Moritz.Schleimer.FreeGameSphere.R
@@ -40,10 +41,11 @@ class GamesFragment: Fragment() {
         val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.visibility = View.VISIBLE
 
-        val rvAdapter = GamesAdapter(emptyList())
-        binding.rvGames.adapter = rvAdapter
-        viewModel.games.observe(viewLifecycleOwner) {
-            rvAdapter.submitListCall(it)
+        viewModel.games.observe(viewLifecycleOwner) {games->
+            binding.rvGames.adapter = GamesAdapter(games){
+                val action = GamesFragmentDirections.actionGamesFragment2ToDetailGamesFragment(it.id)
+                findNavController().navigate(action)
+            }
         }
     }
 }
