@@ -52,4 +52,12 @@
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.Moritz.Schleimer.FreeGameSphere.ui.SettingsFragment"
+        android:label="SettingsFragment" />
+    <fragment
+        android:id="@+id/favoritesFragment"
+        android:name="com.Moritz.Schleimer.FreeGameSphere.ui.FavoritesFragment"
+        android:label="FavoritesFragment" />
 </navigation>
