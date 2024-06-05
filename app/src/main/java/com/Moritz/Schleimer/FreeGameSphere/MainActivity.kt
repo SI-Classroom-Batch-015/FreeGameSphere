@@ -26,6 +26,16 @@ class MainActivity : AppCompatActivity() {
         val navHost = supportFragmentManager.findFragmentById(R.id.fragmentContainerView2) as NavHostFragment
         binding.bottomNavigationView.setupWithNavController(navHost.navController)
 
+        val navController = navHost.navController
+
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+
+            if (navController.currentDestination!!.id != item.itemId) {
+                navController.navigate(item.itemId)
+            }
+            false
+        }
+
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 binding.fragmentContainerView2.findNavController().navigateUp()
