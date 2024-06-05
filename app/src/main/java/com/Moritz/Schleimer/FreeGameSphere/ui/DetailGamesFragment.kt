@@ -57,12 +57,29 @@ class DetailGamesFragment: Fragment() {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.game_url))
                 startActivity(intent)
             }
+            updateLikeButton(viewModel.isFavorite(game))
+
             binding.imageView.setOnClickListener{
-                binding.imageView.setImageResource(R.drawable.baseline_favorite_24)
-                viewModel.addToFavorite(game)
+                val isFavorite = viewModel.isFavorite(game)
+                if (isFavorite){
+                    viewModel.removeFavorite(game)
+                }else{
+                    viewModel.addToFavorite(game)
+                }
+                updateLikeButton(!isFavorite)
             }
-
         }
-
+         viewModel.favoriteGames.observe(viewLifecycleOwner){
+            viewModel.game.value?.let {game ->
+                updateLikeButton(viewModel.isFavorite(game))
+                }
+        }
+    }
+    private fun updateLikeButton(isFavorite:Boolean){
+        if (isFavorite){
+            binding.imageView.setImageResource(R.drawable.baseline_favorite_24)
+        }else{
+            binding.imageView.setImageResource(R.drawable.baseline_favorite_border_24)
+        }
     }
 }
