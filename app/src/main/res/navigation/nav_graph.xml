@@ -59,5 +59,9 @@
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="com.Moritz.Schleimer.FreeGameSphere.ui.FavoritesFragment"
-        android:label="FavoritesFragment" />
+        android:label="FavoritesFragment" >
+        <action
+            android:id="@+id/action_favoritesFragment_to_detailGamesFragment"
+            app:destination="@id/detailGamesFragment" />
+    </fragment>
 </navigation>
