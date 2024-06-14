@@ -72,6 +72,7 @@ class LoginFragment : Fragment() {
                 STATES.SUCCESS -> {
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.visibility = View.VISIBLE
+                    findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToGamesFragment2())
                     viewModel.clearState()
                 }
 
