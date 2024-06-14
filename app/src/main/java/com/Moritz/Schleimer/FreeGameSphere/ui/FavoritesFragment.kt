@@ -28,7 +28,6 @@ class FavoritesFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFavoritesBinding.inflate(layoutInflater)
-        viewModel.loadFavorites()
         return binding.root
     }
 
@@ -40,9 +39,10 @@ class FavoritesFragment: Fragment() {
         toolBarTitle.text = "Favoriten"
 
 
-        viewModel.favoriteGames.observe(viewLifecycleOwner){
-            binding.rvFavorites.adapter = GamesAdapter(it){game->
-                val action = FavoritesFragmentDirections.actionFavoritesFragmentToDetailGamesFragment(game.id)
+        viewModel.favoriteGames.observe(viewLifecycleOwner) { favoriteGames ->
+            binding.rvFavorites.adapter = GamesAdapter(favoriteGames) { selectedGame ->
+                viewModel.selectGameById(selectedGame.id)
+                val action = FavoritesFragmentDirections.actionFavoritesFragmentToDetailGamesFragment(selectedGame.id)
                 findNavController().navigate(action)
             }
         }
