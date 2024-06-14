@@ -29,7 +29,7 @@ class DetailGamesFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetailGamesBinding.inflate(layoutInflater)
-        viewModel.loadGameById(args.id)
+        viewModel.selectGameById(args.id)
         return binding.root
     }
 
@@ -44,38 +44,32 @@ class DetailGamesFragment: Fragment() {
         bottomNav.visibility = View.VISIBLE
 
 
-        viewModel.game.observe(viewLifecycleOwner){game->
-            binding.imageThumbnail.load(game.thumbnail)
-            binding.tvTitleAPI.text = game.title
-            binding.tvGenreAPI.text = game.genre
-            binding.tvPlatformAPI.text = game.platform
-            binding.tvPublisherAPI.text = game.publisher
-            binding.tvDeveloperAPI.text = game.developer
-            binding.tvReleaseDateAPI.text = game.release_date
-            binding.tvShortDescriptionAPI.text = game.description
-            binding.btnHomepage.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.game_url))
-                startActivity(intent)
-            }
-            updateLikeButton(viewModel.isFavorite(game))
-
-            binding.imageView.setOnClickListener{
-                val isFavorite = viewModel.isFavorite(game)
-                if (isFavorite){
-                    viewModel.removeFavorite(game)
-                }else{
-                    viewModel.addToFavorite(game)
+        viewModel.selectedGame.observe(viewLifecycleOwner){
+            it?.let { game ->
+                binding.imageThumbnail.load(game.thumbnail)
+                binding.tvTitleAPI.text = game.title
+                binding.tvGenreAPI.text = game.genre
+                binding.tvPlatformAPI.text = game.platform
+                binding.tvPublisherAPI.text = game.publisher
+                binding.tvDeveloperAPI.text = game.developer
+                binding.tvReleaseDateAPI.text = game.release_date
+                binding.tvShortDescriptionAPI.text = game.description ?: game.short_description
+                binding.btnHomepage.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(game.game_url))
+                    startActivity(intent)
                 }
-                updateLikeButton(!isFavorite)
             }
         }
-         viewModel.favoriteGames.observe(viewLifecycleOwner){
-            viewModel.game.value?.let {game ->
-                updateLikeButton(viewModel.isFavorite(game))
-                }
+
+        viewModel.isFavorite.observe(viewLifecycleOwner){
+            updateLikeButtonUi(it)
+        }
+
+        binding.imageView.setOnClickListener{
+            viewModel.toggleFavorite()
         }
     }
-    private fun updateLikeButton(isFavorite:Boolean){
+    private fun updateLikeButtonUi(isFavorite:Boolean){
         if (isFavorite){
             binding.imageView.setImageResource(R.drawable.baseline_favorite_24)
         }else{
