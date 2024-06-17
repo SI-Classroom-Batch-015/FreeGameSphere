@@ -5,38 +5,61 @@ import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.Moritz.Schleimer.FreeGameSphere.data.Repository
 import com.Moritz.Schleimer.FreeGameSphere.data.model.Game
 import com.Moritz.Schleimer.FreeGameSphere.data.model.Profile
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.FirebaseService
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.GameApi
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-enum class STATES{LOADING,SUCCESS,ERROR}
+import java.lang.Exception
+
+enum class STATES{DEFAULT,LOADING,SUCCESS,ERROR}
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repo = Repository(GameApi, FirebaseService())
-    private val auth = FirebaseAuth.getInstance()
 
     val games = repo.games
-    val game = repo.game
-    val currentUser = repo.currentUser
-    val favoriteGames = repo.favoriteGames
+    val currentUser = repo.firebaseUser
+    val favoriteGames = repo.games.map { games ->
+        games.filter { it.isLiked }
+    }
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?>
         get()= _error
 
-    private val _currentState = MutableLiveData<STATES?>()
-    val currentState : LiveData<STATES?> get() = _currentState
+    private val _currentState = MutableLiveData(STATES.DEFAULT)
+    val currentState: LiveData<STATES> get() = _currentState
 
-    init {
-        setupUser()
+
+
+    private val _selectedGameId = MutableLiveData<Int?>()
+    val selectedGame: LiveData<Game?> = _selectedGameId.switchMap { id ->
+        repo.games.map { it.find { it.id == id } }
     }
 
-    private fun setupUser(){
+    val isFavorite = selectedGame.map { it?.isLiked ?: false }
+
+
+
+    init {
         repo.getCurrentUser()
+        viewModelScope.launch{
+            repo.getFavoriteGames()
+        }
+    }
+    fun toggleFavorite(){
+        val game = selectedGame.value ?: throw Exception("Game is null in toggleFavorites")
+        viewModelScope.launch {
+            if (isFavorite.value == true) {
+                repo.removeFavoriteGame(game)
+            } else {
+                repo.addGameToFavorite(game)
+            }
+        }
     }
 
     fun signUp(email:String,password:String,password2: String){
@@ -45,8 +68,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _currentState.value = STATES.LOADING
             val isSuccess = repo.signUpUser(email, password)
             if (isSuccess){
-                val profile = Profile()
-                repo.setProfile(profile)
                 _currentState.value = STATES.SUCCESS
             }else{
                 _currentState.value = STATES.ERROR
@@ -104,7 +125,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val isSuccess = repo.signInUser(email, password)
             if (isSuccess){
-                setupUser()
                 _currentState.value = STATES.SUCCESS
             }else{
                 _currentState.value = STATES.ERROR
@@ -115,19 +135,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun signOut(){
         repo.signOut()
-        setupUser()
+        repo.getCurrentUser()
     }
 
 
     fun loadGames() {
         viewModelScope.launch {
-            repo.getGames()
+            repo.loadGames()
         }
     }
 
-    fun loadGameById(id: Int) {
+    fun selectGameById(id: Int) {
+        _selectedGameId.value = id
         viewModelScope.launch {
-            repo.getGameById(id)
+            repo.loadLongDescriptionByGameId(id)
         }
     }
     fun clearError(){
@@ -136,24 +157,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearState(){
         _currentState.value = null
     }
-    fun addToFavorite(game: Game){
-        viewModelScope.launch {
-            repo.addGameToFavorite(game)
-        }
-    }
 
-    fun removeFavorite(game: Game){
-        viewModelScope.launch {
-            repo.removeFavoriteGame(game)
-        }
-    }
-    fun loadFavorites(){
-        viewModelScope.launch{
-            repo.getFavoriteGame()
-        }
-    }
-
-    fun isFavorite(game:Game):Boolean{
-        return favoriteGames.value?.any { it.id == game.id } == true
-    }
 }
