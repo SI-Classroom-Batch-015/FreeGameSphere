@@ -1,48 +1,79 @@
 package com.Moritz.Schleimer.FreeGameSphere.data
 
-import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.Moritz.Schleimer.FreeGameSphere.data.model.Game
 import com.Moritz.Schleimer.FreeGameSphere.data.model.Profile
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.FirebaseService
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.FirestoreService
-import com.Moritz.Schleimer.FreeGameSphere.data.remote.FreeToGameAPIService
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.GameApi
 import com.google.firebase.auth.FirebaseUser
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+
 const val TAG = "Repository"
+
 class Repository(
     private val api: GameApi,
     private val firebaseService: FirebaseService
 
 ) {
 
-    val isLoggedIn = firebaseService.isLoggedIn
 
-    private val _currentUser = MutableLiveData<FirebaseUser?>()
-    val currentUser:LiveData<FirebaseUser?>
-        get() = _currentUser
+    private val _firebaseUser = MutableLiveData<FirebaseUser?>()
+    val firebaseUser: LiveData<FirebaseUser?>
+        get() = _firebaseUser
 
-    private val _games = MutableLiveData<List<Game>>()
-    val games: LiveData<List<Game>>
-        get() = _games
-
-    private val _game = MutableLiveData<Game>()
-    val game: LiveData<Game>
-        get() = _game
-
-    private val _userProfile = MutableLiveData<Profile>()
-    val userProfile: LiveData<Profile>
+    private val _userProfile = MutableLiveData<Profile?>()
+    val userProfile: LiveData<Profile?>
         get() = _userProfile
 
-    private val _favoriteGames = MutableLiveData<List<Game>>()
-    val favoriteGames: LiveData<List<Game>>
-        get() = _favoriteGames
+    private val _games = MutableLiveData<List<Game>>()
+    private val _favoriteGameIds = MutableLiveData<List<Int>>()
+    private val _gameDescriptions = MutableLiveData<Map<Int, String>>(emptyMap())
 
-    suspend fun getGames() {
+
+    private val _gamesWithFavorites = MediatorLiveData<List<Game>>().apply {
+        addSource(_games) {
+            value = combineGamesWithFavoriteIds(
+                it,
+                _gameDescriptions.value ?: emptyMap(),
+                _favoriteGameIds.value?.toSet() ?: emptySet()
+            )
+        }
+        addSource(_favoriteGameIds) {
+            value = combineGamesWithFavoriteIds(
+                _games.value ?: emptyList(),
+                _gameDescriptions.value ?: emptyMap(),
+                it.toSet()
+            )
+        }
+        addSource(_gameDescriptions) {
+            value = combineGamesWithFavoriteIds(
+                _games.value ?: emptyList(),
+                it,
+                _favoriteGameIds.value?.toSet() ?: emptySet()
+            )
+        }
+    }
+
+    private fun combineGamesWithFavoriteIds(
+        games: List<Game>,
+        longDescriptions: Map<Int, String>,
+        favoriteGameIds: Set<Int>
+    ): List<Game> {
+        return games.map {
+            it.copy(
+                description = longDescriptions[it.id],
+                isLiked = it.id in favoriteGameIds
+            )
+        }
+    }
+
+    val games: LiveData<List<Game>>
+        get() = _gamesWithFavorites
+
+    suspend fun loadGames() {
         try {
             val result = api.retrofitService.getAllGames()
             _games.postValue(result)
@@ -51,14 +82,18 @@ class Repository(
         }
     }
 
-    fun getCurrentUser(){
-        _currentUser.value = firebaseService.getCurrentUser()
+    fun getCurrentUser() {
+        _firebaseUser.value = firebaseService.getCurrentUser()
     }
 
-    suspend fun getGameById(id: Int) {
+    suspend fun loadLongDescriptionByGameId(id: Int) {
         try {
-            val result = api.retrofitService.getGameById(id)
-            _game.postValue(result)
+            val newDescription = api.retrofitService.getGameById(id).description
+            if (newDescription != null) {
+                val descriptions = _gameDescriptions.value?.toMutableMap()
+                descriptions?.put(id, newDescription)
+                _gameDescriptions.value = descriptions?.toMap()
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get Game by ID from API $e")
         }
@@ -67,6 +102,10 @@ class Repository(
     suspend fun signInUser(email: String, password: String): Boolean {
         return try {
             firebaseService.signInWithEmailAndPassword(email, password)
+            getFavoriteGames()
+            getCurrentUser()
+            val profile = Profile()
+            setProfile(profile)
         } catch (e: Exception) {
             Log.d(TAG, e.message.toString())
             false
@@ -76,17 +115,21 @@ class Repository(
     suspend fun signUpUser(email: String, password: String): Boolean {
         return try {
             firebaseService.createUserWithEmailAndPassword(email, password)
+            val profile = Profile()
+            setProfile(profile)
         } catch (e: Exception) {
-            Log.e(TAG,e.message.toString())
+            Log.e(TAG, e.message.toString())
             false
         }
     }
 
     fun signOut() {
         firebaseService.signOut()
+        _userProfile.value = null
+        _favoriteGameIds.value = emptyList()
     }
 
-    suspend fun setProfile(profile: Profile): Boolean {
+    private suspend fun setProfile(profile: Profile): Boolean {
         try {
             val uid = firebaseService.userId ?: return false
             val firestoreService = FirestoreService(uid)
@@ -98,6 +141,7 @@ class Repository(
             return false
         }
     }
+
     private suspend fun getUserProfile() {
         try {
             val uid = firebaseService.userId ?: return
@@ -108,34 +152,38 @@ class Repository(
         }
     }
 
-    suspend fun addGameToFavorite(game:Game){
+    suspend fun addGameToFavorite(game: Game) {
         try {
-            val uid = firebaseService.userId ?: return
+            val uid =
+                firebaseService.userId ?: throw Exception("Could not get UID in addGameToFavorite")
             val firestoreService = FirestoreService(uid)
-            firestoreService.addToFavorites(uid,game)
-        }catch (e:Exception){
-            Log.e(Repository::class.simpleName,"Could not add Favorite to Database")
+            firestoreService.addToFavorites(uid, game)
+            getFavoriteGames()
+        } catch (e: Exception) {
+            Log.e(Repository::class.simpleName, "Could not add Favorite to Firebase: $e")
         }
     }
 
-    suspend fun getFavoriteGame() {
+    suspend fun getFavoriteGames() {
         try {
-            val uid = firebaseService.userId ?: return
+            val uid =
+                firebaseService.userId ?: throw Exception("Could not get UID in getFavoriteGames")
             val firestoreService = FirestoreService(uid)
             val result = firestoreService.getFavorites(uid)
-            _favoriteGames.value = result
+            _favoriteGameIds.value = result
         } catch (e: Exception) {
-            Log.e(Repository::class.simpleName, e.message.toString())
+            Log.e(Repository::class.simpleName, "Could not get favorite Games from Firebase: $e")
         }
     }
 
-    suspend fun removeFavoriteGame(game: Game){
+    suspend fun removeFavoriteGame(game: Game) {
         try {
             val uid = firebaseService.userId ?: return
             val firestoreService = FirestoreService(uid)
-            firestoreService.removeFromFavorites(uid,game)
-        }catch (e:Exception){
-            Log.e(Repository::class.simpleName,"Could not remove Favorite from Database")
+            firestoreService.removeFromFavorites(uid, game)
+            getFavoriteGames()
+        } catch (e: Exception) {
+            Log.e(Repository::class.simpleName, "Could not remove Favorite from Firebase: $e")
         }
     }
 }
