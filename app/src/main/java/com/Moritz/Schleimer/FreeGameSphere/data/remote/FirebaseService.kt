@@ -16,14 +16,9 @@ class FirebaseService {
         return user
     }
 
-    val isLoggedIn: Boolean
-        get() = user != null
-
     val userId: String?
         get() = user?.uid
 
-    val email: String?
-        get() = user?.email
 
     suspend fun signInWithEmailAndPassword(email: String, password: String): Boolean {
         val result = Firebase.auth.signInWithEmailAndPassword(email, password).await()
