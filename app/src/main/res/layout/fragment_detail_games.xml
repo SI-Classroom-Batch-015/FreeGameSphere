@@ -158,7 +158,8 @@
             android:id="@+id/btnHomepage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Zur Homepage" />
+            android:text="Zur Homepage"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 </ScrollView>
