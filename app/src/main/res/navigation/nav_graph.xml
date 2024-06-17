@@ -43,6 +43,9 @@
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
@@ -55,7 +58,14 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.Moritz.Schleimer.FreeGameSphere.ui.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="SettingsFragment" >
+        <action
+            android:id="@+id/action_settingsFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_onboardingFragment"
+            app:destination="@id/onboardingFragment" />
+    </fragment>
     <fragment
         android:id="@+id/favoritesFragment"
         android:name="com.Moritz.Schleimer.FreeGameSphere.ui.FavoritesFragment"
