@@ -1,12 +1,15 @@
 package com.Moritz.Schleimer.FreeGameSphere.ui
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.Moritz.Schleimer.FreeGameSphere.MainViewModel
 import com.Moritz.Schleimer.FreeGameSphere.R
@@ -37,11 +40,11 @@ class SettingsFragment:Fragment() {
         val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.visibility = View.VISIBLE
 
+
         binding.btnLogout.setOnClickListener {
             viewModel.signOut()
-            findNavController().popBackStack(R.id.loginFragment, true)
-            findNavController().navigate(R.id.loginFragment)
-
+            it.findNavController().navigate(R.id.loginFragment)
+            viewModel.clearState()
         }
     }
 }
