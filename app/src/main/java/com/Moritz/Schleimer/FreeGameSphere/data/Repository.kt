@@ -1,5 +1,6 @@
 package com.Moritz.Schleimer.FreeGameSphere.data
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -10,6 +11,7 @@ import com.Moritz.Schleimer.FreeGameSphere.data.remote.FirebaseService
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.FirestoreService
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.GameApi
 import com.google.firebase.auth.FirebaseUser
+import java.io.File
 
 const val TAG = "Repository"
 
@@ -104,8 +106,8 @@ class Repository(
             firebaseService.signInWithEmailAndPassword(email, password)
             getFavoriteGames()
             getCurrentUser()
-            val profile = Profile()
-            setProfile(profile)
+            getUserProfile()
+            true
         } catch (e: Exception) {
             Log.d(TAG, e.message.toString())
             false
@@ -142,7 +144,7 @@ class Repository(
         }
     }
 
-    private suspend fun getUserProfile() {
+     suspend fun getUserProfile() {
         try {
             val uid = firebaseService.userId ?: return
             val firestoreService = FirestoreService(uid)
@@ -184,6 +186,26 @@ class Repository(
             getFavoriteGames()
         } catch (e: Exception) {
             Log.e(Repository::class.simpleName, "Could not remove Favorite from Firebase: $e")
+        }
+    }
+    // STORAGE
+    suspend fun uploadProfilePhoto(file: File): Uri? {
+        return try {
+            val uid = firebaseService.userId ?: ""
+            val firestoreService = FirestoreService(uid)
+            firestoreService.uploadPhoto(file)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error uploading profile photo: ${e.message}")
+            null
+        }
+    }
+    suspend fun updateProfile(profile: Profile){
+        try {
+            val uid = firebaseService.userId ?: return
+            val firestoreService = FirestoreService(uid)
+            firestoreService.updateProfile(profile)
+        }catch (e: Exception) {
+            Log.e(TAG, "Error update profile: ${e.message}")
         }
     }
 }
