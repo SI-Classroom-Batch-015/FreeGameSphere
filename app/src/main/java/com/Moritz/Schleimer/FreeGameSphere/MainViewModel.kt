@@ -1,6 +1,7 @@
 package com.Moritz.Schleimer.FreeGameSphere
 
 import android.app.Application
+import android.net.Uri
 import android.util.Patterns
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -10,10 +11,11 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.Moritz.Schleimer.FreeGameSphere.data.Repository
 import com.Moritz.Schleimer.FreeGameSphere.data.model.Game
-import com.Moritz.Schleimer.FreeGameSphere.data.model.Profile
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.FirebaseService
 import com.Moritz.Schleimer.FreeGameSphere.data.remote.GameApi
+import com.google.firebase.auth.EmailAuthProvider
 import kotlinx.coroutines.launch
+import java.io.File
 import java.lang.Exception
 
 enum class STATES{DEFAULT,LOADING,SUCCESS,ERROR}
@@ -23,6 +25,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val games = repo.games
     val currentUser = repo.firebaseUser
+    val currentProfile = repo.userProfile
     val favoriteGames = repo.games.map { games ->
         games.filter { it.isLiked }
     }
@@ -33,7 +36,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _currentState = MutableLiveData(STATES.DEFAULT)
     val currentState: LiveData<STATES> get() = _currentState
-
 
 
     private val _selectedGameId = MutableLiveData<Int?>()
@@ -49,6 +51,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repo.getCurrentUser()
         viewModelScope.launch{
             repo.getFavoriteGames()
+        }
+    }
+
+    fun loadUserProfile(){
+        viewModelScope.launch {
+            repo.getUserProfile()
         }
     }
     fun toggleFavorite(){
@@ -157,5 +165,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearState(){
         _currentState.value = null
     }
+    //Storage
+    private val _profilePhotoUrl = MutableLiveData<Uri?>()
+    val profilePhotoUrl: LiveData<Uri?>
+        get() = _profilePhotoUrl
 
+    fun uploadProfilePhoto(file:File){
+        viewModelScope.launch {
+            val dowloadUrl = repo.uploadProfilePhoto(file)
+            _profilePhotoUrl.value = dowloadUrl
+        }
+    }
+    fun updateProfile(image:String){
+        viewModelScope.launch {
+            val currentProfile = currentProfile.value
+            val updateProfile = currentProfile?.copy(imageUrl = image)
+            if (updateProfile != null) {
+                repo.updateProfile(updateProfile)
+            }
+        }
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        val user = currentUser.value
+        val credential = EmailAuthProvider.getCredential(user!!.email!!, currentPassword)
+
+        user.reauthenticate(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                user.updatePassword(newPassword)
+
+            }
+        }
+    }
 }
