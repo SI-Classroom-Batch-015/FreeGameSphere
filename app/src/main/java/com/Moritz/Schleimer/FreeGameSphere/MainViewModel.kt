@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.Exception
 
-enum class STATES{DEFAULT,LOADING,SUCCESS,ERROR}
+enum class STATES { DEFAULT, LOADING, SUCCESS, ERROR }
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repo = Repository(GameApi, FirebaseService())
@@ -32,7 +32,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?>
-        get()= _error
+        get() = _error
 
     private val _currentState = MutableLiveData(STATES.DEFAULT)
     val currentState: LiveData<STATES> get() = _currentState
@@ -46,20 +46,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val isFavorite = selectedGame.map { it?.isLiked ?: false }
 
 
-
     init {
         repo.getCurrentUser()
-        viewModelScope.launch{
+        viewModelScope.launch {
             repo.getFavoriteGames()
         }
     }
 
-    fun loadUserProfile(){
+    fun loadUserProfile() {
         viewModelScope.launch {
             repo.getUserProfile()
         }
     }
-    fun toggleFavorite(){
+
+    fun toggleFavorite() {
         val game = selectedGame.value ?: throw Exception("Game is null in toggleFavorites")
         viewModelScope.launch {
             if (isFavorite.value == true) {
@@ -70,78 +70,83 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun signUp(email:String,password:String,password2: String){
-        if (!validateCredentialsSignUp(email,password,password2)) return
-        viewModelScope.launch{
+    fun signUp(email: String, password: String, password2: String) {
+        if (!validateCredentialsSignUp(email, password, password2)) return
+        viewModelScope.launch {
             _currentState.value = STATES.LOADING
             val isSuccess = repo.signUpUser(email, password)
-            if (isSuccess){
+            if (isSuccess) {
                 _currentState.value = STATES.SUCCESS
-            }else{
+            } else {
                 _currentState.value = STATES.ERROR
                 _error.value = "User already exists"
             }
         }
     }
-    private fun validateCredentialsSignIn(email: String, passwort: String): Boolean{
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+
+    private fun validateCredentialsSignIn(email: String, passwort: String): Boolean {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _error.value = "Invalid Email Adress"
             return false
         }
-        if (email.isBlank()||passwort.isBlank()){
+        if (email.isBlank() || passwort.isBlank()) {
             _error.value = "Email or Passwort is empty"
             return false
         }
-        if (passwort.length < 6){
+        if (passwort.length < 6) {
             _error.value = "Passwort to short. Must be atleast 6 Characters"
             return false
         }
-        if (email.length < 5){
+        if (email.length < 5) {
             _error.value = "Email needs atleast 5 Characters"
             return false
         }
         return true
     }
 
-    private fun validateCredentialsSignUp(email: String,password: String,password2: String):Boolean{
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+    private fun validateCredentialsSignUp(
+        email: String,
+        password: String,
+        password2: String
+    ): Boolean {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _error.value = "Invalid Email Adress"
             return false
         }
-        if (email.isBlank()||password.isBlank()||password2.isBlank()){
+        if (email.isBlank() || password.isBlank() || password2.isBlank()) {
             _error.value = "Email or Passwort is empty"
             return false
         }
-        if (password.length < 6){
+        if (password.length < 6) {
             _error.value = "Password to short. Must be atleast 6 Characters"
             return false
         }
-        if (email.length < 5){
+        if (email.length < 5) {
             _error.value = "Email needs atleast 5 Characters"
             return false
         }
-        if (password != password2){
+        if (password != password2) {
             _error.value = "Passwords do not match"
             return false
         }
         return true
     }
 
-    fun signIn(email: String,password: String){
-        if (!validateCredentialsSignIn(email,password)) return
+    fun signIn(email: String, password: String) {
+        if (!validateCredentialsSignIn(email, password)) return
         _currentState.value = STATES.LOADING
         viewModelScope.launch {
             val isSuccess = repo.signInUser(email, password)
-            if (isSuccess){
+            if (isSuccess) {
                 _currentState.value = STATES.SUCCESS
-            }else{
+            } else {
                 _currentState.value = STATES.ERROR
                 _error.value = "Email and password are incorrect"
             }
         }
     }
 
-    fun signOut(){
+    fun signOut() {
         repo.signOut()
         repo.getCurrentUser()
     }
@@ -159,24 +164,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repo.loadLongDescriptionByGameId(id)
         }
     }
-    fun clearError(){
+
+    fun clearError() {
         _error.value = null
     }
-    fun clearState(){
+
+    fun clearState() {
         _currentState.value = null
     }
+
     //Storage
     private val _profilePhotoUrl = MutableLiveData<Uri?>()
     val profilePhotoUrl: LiveData<Uri?>
         get() = _profilePhotoUrl
 
-    fun uploadProfilePhoto(file:File){
+    fun uploadProfilePhoto(file: File) {
         viewModelScope.launch {
             val dowloadUrl = repo.uploadProfilePhoto(file)
             _profilePhotoUrl.value = dowloadUrl
         }
     }
-    fun updateProfile(image:String){
+
+    fun updateProfile(image: String) {
         viewModelScope.launch {
             val currentProfile = currentProfile.value
             val updateProfile = currentProfile?.copy(imageUrl = image)

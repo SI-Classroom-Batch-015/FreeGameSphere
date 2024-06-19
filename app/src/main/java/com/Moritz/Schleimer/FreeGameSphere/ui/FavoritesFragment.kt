@@ -17,7 +17,7 @@ import com.Moritz.Schleimer.FreeGameSphere.databinding.FragmentGamesBinding
 import com.Moritz.Schleimer.FreeGameSphere.databinding.ItemGameBinding
 import com.google.android.material.appbar.MaterialToolbar
 
-class FavoritesFragment: Fragment() {
+class FavoritesFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoritesBinding
     private val viewModel: MainViewModel by activityViewModels()
@@ -35,14 +35,17 @@ class FavoritesFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val toolbar = requireActivity().findViewById<MaterialToolbar>(R.id.materialToolbar)
-        var toolBarTitle= toolbar.findViewById<TextView>(R.id.toolbar_title)
+        var toolBarTitle = toolbar.findViewById<TextView>(R.id.toolbar_title)
         toolBarTitle.text = "Favoriten"
 
 
         viewModel.favoriteGames.observe(viewLifecycleOwner) { favoriteGames ->
             binding.rvFavorites.adapter = GamesAdapter(favoriteGames) { selectedGame ->
                 viewModel.selectGameById(selectedGame.id)
-                val action = FavoritesFragmentDirections.actionFavoritesFragmentToDetailGamesFragment(selectedGame.id)
+                val action =
+                    FavoritesFragmentDirections.actionFavoritesFragmentToDetailGamesFragment(
+                        selectedGame.id
+                    )
                 findNavController().navigate(action)
             }
         }

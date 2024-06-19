@@ -17,7 +17,7 @@ import com.Moritz.Schleimer.FreeGameSphere.databinding.FragmentOnboardingBinding
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class OnboardingFragment: Fragment() {
+class OnboardingFragment : Fragment() {
 
     private lateinit var binding: FragmentOnboardingBinding
     private val viewModel: MainViewModel by activityViewModels()
@@ -35,10 +35,11 @@ class OnboardingFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val toolbar = requireActivity().findViewById<MaterialToolbar>(R.id.materialToolbar)
-        var toolBarTitle= toolbar.findViewById<TextView>(R.id.toolbar_title)
+        var toolBarTitle = toolbar.findViewById<TextView>(R.id.toolbar_title)
         toolBarTitle.text = ""
 
-        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        val bottomNav =
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.visibility = GONE
 
         binding.btnGetStartet.setOnClickListener {

@@ -144,7 +144,7 @@ class Repository(
         }
     }
 
-     suspend fun getUserProfile() {
+    suspend fun getUserProfile() {
         try {
             val uid = firebaseService.userId ?: return
             val firestoreService = FirestoreService(uid)
@@ -188,6 +188,7 @@ class Repository(
             Log.e(Repository::class.simpleName, "Could not remove Favorite from Firebase: $e")
         }
     }
+
     // STORAGE
     suspend fun uploadProfilePhoto(file: File): Uri? {
         return try {
@@ -199,12 +200,13 @@ class Repository(
             null
         }
     }
-    suspend fun updateProfile(profile: Profile){
+
+    suspend fun updateProfile(profile: Profile) {
         try {
             val uid = firebaseService.userId ?: return
             val firestoreService = FirestoreService(uid)
             firestoreService.updateProfile(profile)
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e(TAG, "Error update profile: ${e.message}")
         }
     }

@@ -17,7 +17,7 @@ class FirestoreService(
 ) {
     private val database = Firebase.firestore
 
-    suspend fun setUser(profile: Profile){
+    suspend fun setUser(profile: Profile) {
         database.collection("Profiles").document(uid).set(profile).await()
     }
 
@@ -30,20 +30,24 @@ class FirestoreService(
         return result.toObject(Profile::class.java)
     }
 
-    suspend fun addToFavorites(uid: String,game: Game){
-        database.collection("Profiles").document(uid).collection("Favorites").document(game.id.toString()).set(
+    suspend fun addToFavorites(uid: String, game: Game) {
+        database.collection("Profiles").document(uid).collection("Favorites")
+            .document(game.id.toString()).set(
             mapOf("likedAt" to Timestamp.now())
-        ) .await()
+        ).await()
     }
 
-    suspend fun removeFromFavorites(uid: String,game: Game){
-        database.collection("Profiles").document(uid).collection("Favorites").document(game.id.toString()).delete().await()
+    suspend fun removeFromFavorites(uid: String, game: Game) {
+        database.collection("Profiles").document(uid).collection("Favorites")
+            .document(game.id.toString()).delete().await()
     }
 
-    suspend fun getFavorites(uid: String):List<Int>{
-        val result = database.collection("Profiles").document(uid).collection("Favorites").get().await()
+    suspend fun getFavorites(uid: String): List<Int> {
+        val result =
+            database.collection("Profiles").document(uid).collection("Favorites").get().await()
         return result.documents.map { it.id.toInt() }
     }
+
     //Storage
     private val storage = FirebaseStorage.getInstance()
     private val storageRef = storage.reference

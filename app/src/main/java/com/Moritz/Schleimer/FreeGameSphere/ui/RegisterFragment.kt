@@ -16,7 +16,7 @@ import com.Moritz.Schleimer.FreeGameSphere.databinding.FragmentRegisterBinding
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class RegisterFragment: Fragment() {
+class RegisterFragment : Fragment() {
 
     private lateinit var binding: FragmentRegisterBinding
     private val viewModel: MainViewModel by activityViewModels()
@@ -26,7 +26,7 @@ class RegisterFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRegisterBinding.inflate(inflater,container,false)
+        binding = FragmentRegisterBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -52,7 +52,7 @@ class RegisterFragment: Fragment() {
             val email = binding.emailEt.text.toString()
             val passwort = binding.passwordEt.text.toString()
             val confirmPassword = binding.passwortSafeEt.text.toString()
-            viewModel.signUp(email, passwort,confirmPassword)
+            viewModel.signUp(email, passwort, confirmPassword)
 
         }
         viewModel.currentState.observe(viewLifecycleOwner) {

@@ -12,7 +12,7 @@ class FirebaseService {
     private val firebaseAuth = FirebaseAuth.getInstance()
     private var user: FirebaseUser? = firebaseAuth.currentUser
 
-    fun getCurrentUser():FirebaseUser?{
+    fun getCurrentUser(): FirebaseUser? {
         return user
     }
 
@@ -31,7 +31,8 @@ class FirebaseService {
         user = result.user
         return user != null
     }
-    fun signOut(){
+
+    fun signOut() {
         Firebase.auth.signOut()
         user = null
     }
